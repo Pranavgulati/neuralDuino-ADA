@@ -13,6 +13,7 @@ RV NO_EXCEPTIONS
 RV NO_FLOATING_POINT
 RV NO_IO
 RV NO_IMPLICIT_CONDITIONALS
+RV NO_RECURSION
 RV NO_SECONDARY_STACK
 RV NO_STANDARD_STORAGE_POOLS
 RV NO_DYNAMIC_SIZED_OBJECTS
@@ -21,7 +22,7 @@ RV NO_IMPLICIT_LOOPS
 RV NO_ELABORATION_CODE
 RV SPARK_05
 
-U neuron%b		neuron.adb		24828c3a NE OO PK
+U neuron%b		neuron.adb		99b64007 NE OO PK
 W ada%s			ada.ads			ada.ali
 Z ada.exceptions%s	a-except.adb		a-except.ali
 W ada.float_text_io%s	a-flteio.ads		a-flteio.ali
@@ -34,7 +35,7 @@ W neuron%s		neuron.adb		neuron.ali
 Z system.exn_llf%s	s-exnllf.adb		s-exnllf.ali
 Z system.fat_flt%s	s-fatflt.ads		s-fatflt.ali
 
-U neuron%s		neuron.ads		31270aa7 EE OO PF PK
+U neuron%s		neuron.ads		346980f4 EE OO PF PK
 Z ada.exceptions%s	a-except.adb		a-except.ali
 Z ada.streams%s		a-stream.adb		a-stream.ali
 Z ada.tags%s		a-tags.adb		a-tags.ali
@@ -63,8 +64,8 @@ D a-tiflio.ads		20180524051736 56fbda09 ada.text_io.float_io%s
 D a-unccon.ads		20180524051738 0e9b276f ada.unchecked_conversion%s
 D interfac.ads		20180524051736 5ab55268 interfaces%s
 D i-cstrea.ads		20180524051736 e53d8b8e interfaces.c_streams%s
-D neuron.ads		20180927095524 31270aa7 neuron%s
-D neuron.adb		20180927095734 18641af9 neuron%b
+D neuron.ads		20180927111858 346980f4 neuron%s
+D neuron.adb		20180927112214 a550d6c4 neuron%b
 D system.ads		20180524051738 32a08138 system%s
 D s-crtl.ads		20180524051736 0ebbdb71 system.crtl%s
 D s-exctab.ads		20180524051738 54135002 system.exception_table%s
@@ -102,41 +103,48 @@ X 8 a-ngelfu.ads
 X 12 a-textio.ads
 49K13*Text_IO 471e16 18|2w10 2r27
 73I12*Field{integer}
-242U14*Put 18|42s7
-263U14*Put_Line 18|44s7
+242U14*Put 18|58s7
+263U14*Put_Line 18|60s7
 X 13 a-tiflio.ads
-68U14*Put 18|43s7[4|20]
-71i7 Aft{12|73I12} 18|43r27[4|20]
-72i7 Exp{12|73I12} 18|43r36[4|20]
+68U14*Put 18|59s7[4|20]
+71i7 Aft{12|73I12} 18|59r27[4|20]
+72i7 Exp{12|73I12} 18|59r36[4|20]
 X 17 neuron.ads
-2K9*Neuron 17r33 25l5 25e11 18|4w6 5b14 47l5 47t11
+2K9*Neuron 7r33 31l5 31e11 18|4w6 5b14 62l5 62t11
 3i4*Nmax{integer} 4r38
-4i4*numSynapses{integer} 12r36 13r41 14r32 15r34 18|33r33
-6A9*Float_Array(float)<integer> 12r21 13r26 14r17 15r19 22r59 18|29r59
-7R9*Object 16e17 17r40
-9f10*output{float} 18|37m19 43r20
-10f10*beta{float}
-12a10*synWeight{6A9} 18|35r32
-13a10*prevDeltaWeight{6A9}
-14a10*inputs{6A9} 18|34m19
-15a10*inNodes{6A9}
-17P9*Neuron_Access(7R9) 22r33 23r36 18|29r33 40r36
-19V13*sigmoid{float} 19>21 18|8b13 12l20 12t27 23s29
-19f21 input{float} 18|8b21 11r68
-20V13*sigmoidDerivative{float} 20>31 18|14b13 18l20 18t37 24s31
-20f31 input{float} 18|14b31 17r27 17r39
-21V13*activationFn{float} 21>27 21>43 18|19b13 26l20 26t32 37s29
-21f27 input{float} 18|19b27 23r37 24r49
-21b43 isDerivativeFn{boolean} 18|19b43 22r22
-22U14*setInput 22>23 22>48 18|29b14 38l8 38t16
-22p23 myNeuron{17P9} 18|29b23 34r10 35r23 37r10
-22a48 inputVals{6A9} 18|29b48 34r32 35r47
-23U14*printOutput 23>26 18|40b14 45l8 45t19
-23p26 myNeuron{17P9} 18|40b26 43r11
+4i4*numSynapses{integer} 15r36 16r41 17r33 18r42 18|34r33
+5R9*Object 7r40 9c9 19e17
+6A9*Float_Array(float)<integer> 15r21 16r26 17r18 28r59 18|29r59
+7P9*Neuron_Access(9R9) 8r60 25r33 27r36 28r33 18|29r33 41r33 56r36
+8A9*Neuron_Access_Array(7P9)<integer> 18r19
+9R9*Object
+11f10*output{float} 18|38m19 48m19 50r26 51r28 59r20
+12f10*beta{float}
+13i10*inNodeCount{integer} 18|33m16 44r19 45r45
+15a10*synWeight{6A9} 18|36r32 46r33
+16a10*prevDeltaWeight{6A9}
+17a10*inputs{6A9} 18|35m19
+18a10*inNodes{8A9} 18|46r65
+22V13*sigmoid{float} 22>21 18|8b13 12l20 12t27 23s29
+22f21 input{float} 18|8b21 11r68
+23V13*sigmoidDerivative{float} 23>31 18|14b13 18l20 18t37 24s31
+23f31 input{float} 18|14b31 17r27 17r39
+24V13*activationFn{float} 24>27 24>43 18|19b13 26l20 26t32 38s29 48s28
+24f27 input{float} 18|19b27 23r37 24r49 48r41
+24b43 isDerivativeFn{boolean} 18|19b43 22r22 49r41
+25V13*getOutput{float} 25>23 18|41b13 46s46 54l8 54t17
+25p23 myNeuron{7P9} 18|41b23 44r10 45r36 46r24 46r56 48r10 50r17 51r19
+27U14*printOutput 27>26 18|56b14 61l8 61t19
+27p26 myNeuron{7P9} 18|56b26 59r11
+28U14*setInput 28>23 28>48 18|29b14 39l8 39t16
+28p23 myNeuron{7P9} 18|29b23 33r7 35r10 36r23 38r10
+28a48 inputVals{6A9} 18|29b48 35r32 36r47
 X 18 neuron.adb
 6K12 NumericFunctions[8|39] 11r40
-30f4 sum{float} 35m10 35r17 37r42
-33i11 i{integer} 34r26 34r42 35r42 35r57
+30f4 sum{float} 36m10 36r17 38r42
+34i11 i{integer} 35r26 35r42 36r42 36r57
+42f4 sum{float} 46m13 46r19 48r59
+45i14 i{integer} 46r43 46r73
 X 19 system.ads
 67M9*Address
 X 28 s-memory.ads

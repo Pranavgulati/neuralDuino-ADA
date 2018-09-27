@@ -1,8 +1,8 @@
 with Ada.Numerics.Generic_Elementary_Functions;
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Float_Text_IO; use Ada.Float_Text_IO;
-with Neuron;
-package body Neuron is
+with NeuronModel;
+package body NeuronModel is
    package NumericFunctions is new Ada.Numerics.Generic_Elementary_Functions(Float_Type => Float);
 
    function sigmoid(input:in FLoat)
@@ -28,8 +28,9 @@ package body Neuron is
 
    procedure setInput(myNeuron: Neuron_Access ;inputVals: Float_Array) is
    sum : Float :=0.0;
-  -- set inCOunt =0
    begin
+      -- because one neuron can either have an input vector or inNodes. Reset inNodeCount
+      myNeuron.inNodeCount :=0;
       for i in Integer range 0..numSynapses loop
          myNeuron.inputs(i) := inputVals(i);
          sum := sum + myNeuron.synWeight(i) * inputVals(i);
@@ -37,29 +38,36 @@ package body Neuron is
          myNeuron.output := activationFn(sum , False);
    end setInput;
 
-   procedure printOutput(myNeuron: Neuron_Access) is
-   sum: Float := 0;
+   function getOutput(myNeuron: Neuron_Access) return Float is
+   sum: Float := 0.0;
    begin
-      if inCount
---
---     	float sum = 0;
---  	if (inCount != 0){
---  		byte temp = inCount;
---  		while(temp!=0){
---  			temp--;
---  			sum = sum + (synWeight[temp] * inNodes[temp]->getOutput());
---  		}
---  		output = activation(sum, LOW);
---  	}
---
---  //		Serial.print((int)this);
---  	//	Serial.print("->");
---  		//Serial.println(output);
---  	return  output;
---
+      if myNeuron.inNodeCount /= 0 then
+         for i in Integer range 0..myNeuron.inNodeCount loop
+            sum:= sum+ myNeuron.synWeight(i)*getOutput(myNeuron.inNodes(i));
+         end loop;
+         myNeuron.output:= activationFn(input          => sum,
+                                        isDerivativeFn => False);
+         return myNeuron.output;
+      else return myNeuron.output;
+      end if;
+
+   end getOutput;
+
+   procedure printOutput(myNeuron: Neuron_Access) is
+   begin
       Put("output: ");
       Put(myNeuron.output,Aft => 2,Exp => 0);
       Put_Line("");
    end printOutput;
 
-end Neuron;
+   function setDesiredOutput(myNeuron:Neuron_Access; desiredOutput :Float) return Boolean is
+   begin
+      myNeuron.beta := desiredOutput - myNeuron.output;
+      if Integer(myNeuron.beta * 100.0) = 0 then return True;
+      else return False;
+      end if;
+   end setDesiredOutput;
+
+
+
+end NeuronModel;
