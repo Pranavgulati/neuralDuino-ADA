@@ -2,6 +2,8 @@
 package NeuronModel is
    Nmax        : constant Integer := 8;
    numSynapses : constant Integer := Nmax;
+   SPEED       : constant Float   := 0.1;
+   MOMENTUM    : constant Float   := 0.1;
    type Object;
    type Float_Array is array(Integer range<>) of Float;
    type Neuron_Access is access NeuronModel.Object'Class;
@@ -28,6 +30,7 @@ package NeuronModel is
    
    procedure printOutput(myNeuron: Neuron_Access);
    procedure setInput(myNeuron: Neuron_Access; inputVals: Float_Array);
+   procedure connectInput(myNeuron:Neuron_Access; connectingNeuron:Neuron_Access);
 
 
 end NeuronModel;
