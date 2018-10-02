@@ -26,19 +26,15 @@ package body NeuronModel is
    procedure getOutput(myNeuron: Neuron_Access;Result: out Float) is
    sum: Float := 0.0;
    begin
-      if myNeuron /= null then
-         if myNeuron.inNodeCount /= 0 then
-            for i in Integer range 0..myNeuron.inNodeCount loop
-               getOutput(myNeuron.inNodes(i),Result);
-               sum:= sum+ myNeuron.synWeight(i)*Result;
-            end loop;
-
-            myNeuron.output:= activationFn(input          => sum,
-                                           isDerivativeFn => False);
-            Result:= myNeuron.output;
-         else Result:= myNeuron.output;
-         end if;
-         else raise Numeric_Error;
+      if myNeuron.inNodeCount /= 0 then
+         for i in Integer range 0..myNeuron.inNodeCount-1 loop
+            getOutput(myNeuron.inNodes(i),Result);
+            sum:= sum+ myNeuron.synWeight(i)*Result;
+         end loop;
+         myNeuron.output:= activationFn(input          => sum,
+                                        isDerivativeFn => False);
+         Result:= myNeuron.output;
+      else Result:= myNeuron.output;
       end if;
    end getOutput;
    procedure setDesiredOutput(myNeuron:Neuron_Access; desiredOutput :Float; Result : out Boolean) is
@@ -72,10 +68,10 @@ package body NeuronModel is
       myNeuron.inNodeCount:= myNeuron.inNodeCount + 1;
    end connectInput;
    procedure adjustWeights(myNeuron:Neuron_Access) is
-   myDelta :Float := myNeuron.beta* activationFn(myNeuron.output,True);
+   myDelta :Float := myNeuron.beta * activationFn(myNeuron.output,True);
    begin
       if myNeuron.inNodeCount /= 0 then
-         for i in Integer range 0..myNeuron.inNodeCount loop
+         for i in Integer range 0..myNeuron.inNodeCount-1 loop
             declare
                delWeight:Float:= NeuronModel.SPEED * myNeuron.inNodes(i).output * myDelta;
             begin
@@ -99,7 +95,7 @@ package body NeuronModel is
    myDelta: Float:= myNeuron.beta * activationFn(myNeuron.output,True);
    begin
       if myNeuron.inNodeCount /=0 then
-         for i in Integer range 0..myNeuron.inNodeCount loop
+         for i in Integer range 0..myNeuron.inNodeCount-1 loop
             --The following backpropogates myDelta to the previous layer neurons
             myNeuron.inNodes(i).beta := myNeuron.inNodes(i).beta + (myNeuron.synWeight(i) * myDelta);
          end loop;
@@ -120,7 +116,7 @@ package body NeuronModel is
       myNeuron.beta:=0.0;
 
       for i in Integer range 0..NeuronModel.numSynapses loop
-         myNeuron.synWeight(i):= Ada.Numerics.Float_Random.Random(Gen => RNG) - 0.2;
+         myNeuron.synWeight(i):= Ada.Numerics.Float_Random.Random(Gen => RNG);
          myNeuron.prevDeltaWeight(i):= 0.0;
          myNeuron.inputs(i) := 0.0;
       end loop;
@@ -138,7 +134,6 @@ package body NeuronModel is
    begin
       if myNeuron.inNodeCount /= 0 then
          for i in Integer range 0..myNeuron.inNodeCount-1 loop
-            Put_Line("index");Put(i);
             getOutput(myNeuron.inNodes(i),Result);
             sum:= sum+ myNeuron.synWeight(i)*Result;
          end loop;

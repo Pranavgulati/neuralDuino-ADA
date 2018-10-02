@@ -1,13 +1,14 @@
 
 package NeuronModel is
-   Nmax        : constant Integer := 8;
+   Nmax        : constant Integer := 3;
    numSynapses : constant Integer := Nmax;
-   SPEED       : constant Float   := 0.1;
-   MOMENTUM    : constant Float   := 0.1;
+   SPEED       : constant Float   := 0.4;
+   MOMENTUM    : constant Float   := 0.4;
    type Object;
+   type Neuron;
+   type Neuron_Access is access all Neuron;
+   type Neuron_Access_Array is array (Natural range <>) of aliased Neuron_Access;
    type Float_Array is array(Integer range<>) of Float;
-   type Neuron_Access is access NeuronModel.Object;
-   type Neuron_Access_Array is array (Integer range <>) of Neuron_Access;
    type Object is 
       record
          output      : Float ;
@@ -19,6 +20,8 @@ package NeuronModel is
          inputs: Float_Array(0..numSynapses);
          inNodes: Neuron_Access_Array(0..numSynapses);
       end record;
+   type Neuron is new NeuronModel.Object;
+   type Neuron_Array is array (Natural range<>) of aliased Neuron;
 
    
    function sigmoid(input:in FLoat) return Float;
