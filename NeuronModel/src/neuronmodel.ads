@@ -2,32 +2,34 @@
 package NeuronModel is
    Nmax        : constant Integer := 3;
    numSynapses : constant Integer := Nmax;
-   SPEED       : constant Float   := 0.4;
-   MOMENTUM    : constant Float   := 0.4;
+   SPEED       : constant Float   := 0.1;
+   MOMENTUM    : constant Float   := 0.1;
    type Object;
    type Neuron;
    type Neuron_Access is access all Neuron;
    type Neuron_Access_Array is array (Natural range <>) of aliased Neuron_Access;
    type Float_Array is array(Integer range<>) of Float;
+   type ActivationFnType is (Linear, Sigmoid);
    type Object is 
       record
          output      : Float ;
          beta        : Float ;
          inNodeCount : Integer;
-   
+         activationFnNumber: Integer;
          synWeight: Float_Array(0..numSynapses):=(others => 1.0);
          prevDeltaWeight:Float_Array(0..numSynapses);
          inputs: Float_Array(0..numSynapses);
          inNodes: Neuron_Access_Array(0..numSynapses);
+         activationFnValue:ActivationFnType ;
       end record;
    type Neuron is new NeuronModel.Object;
    type Neuron_Array is array (Natural range<>) of aliased Neuron;
 
    
    function sigmoid(input:in FLoat) return Float;
-   function sigmoidDerivative(input:in FLoat) return Float;             
-   function activationFn (input:in Float; isDerivativeFn: in Boolean) return Float;
-   
+   function sigmoidDerivative(input:in FLoat) return Float;  
+   function activationFn (activationFnValue:ActivationFnType ;input:in Float; isDerivativeFn: in Boolean) return Float;
+   procedure setActivationFn(myNeuron: Neuron_Access ;activationFnValue:ActivationFnType );
    procedure getOutput(myNeuron: Neuron_Access ;Result: out Float);
    procedure setDesiredOutput(myNeuron:Neuron_Access; desiredOutput :Float;Result:out Boolean); 
    

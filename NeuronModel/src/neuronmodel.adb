@@ -16,13 +16,24 @@ package body NeuronModel is
    begin
       return (input)*(1.0-input);
    end sigmoidDerivative;
-   function activationFn (input:in Float; isDerivativeFn: in Boolean) return Float is
+   function activationFn (activationFnValue:ActivationFnType ;input:in Float; isDerivativeFn: in Boolean) return Float is
    begin
       if isDerivativeFn = True then
-         return sigmoid(input);
-      else return sigmoidDerivative(input);
+         case activationFnValue is
+            when Linear => return 1.0;
+            when Sigmoid => return sigmoidDerivative(input);
+         end case;
+      else
+         case activationFnValue is
+            when Linear => return input;
+            when Sigmoid => return sigmoidDerivative(input);
+         end case;
       end if ;
    end activationFn;
+   procedure setActivationFn(myNeuron: Neuron_Access ;activationFnValue:ActivationFnType ) is
+   begin
+      myNeuron.activationFnValue := activationFnValue;
+   end;
    procedure getOutput(myNeuron: Neuron_Access;Result: out Float) is
    sum: Float := 0.0;
    begin
@@ -31,7 +42,8 @@ package body NeuronModel is
             getOutput(myNeuron.inNodes(i),Result);
             sum:= sum+ myNeuron.synWeight(i)*Result;
          end loop;
-         myNeuron.output:= activationFn(input          => sum,
+         myNeuron.output:= activationFn(activationFnValue =>myNeuron.activationFnValue,
+                                        input          => sum,
                                         isDerivativeFn => False);
          Result:= myNeuron.output;
       else Result:= myNeuron.output;
@@ -40,9 +52,10 @@ package body NeuronModel is
    procedure setDesiredOutput(myNeuron:Neuron_Access; desiredOutput :Float; Result : out Boolean) is
    begin
       myNeuron.beta := desiredOutput - myNeuron.output;
-      if Integer(myNeuron.beta * 100.0) = 0 then Result := True;
+      if (myNeuron.beta * 100.0) < 1.0 and (myNeuron.beta *100.0) > -1.0 then Result := True;
       else Result := False;
       end if;
+      Put(myNeuron.beta,Exp => 0,Aft => 1);Put("= desiredOut");New_Line;
    end setDesiredOutput;
 
    procedure printOutput(myNeuron: Neuron_Access) is
@@ -60,7 +73,7 @@ package body NeuronModel is
          myNeuron.inputs(i) := inputVals(i);
          sum := sum + myNeuron.synWeight(i) * inputVals(i);
       end loop;
-         myNeuron.output := activationFn(sum , False);
+         myNeuron.output := activationFn(myNeuron.activationFnValue,sum , False);
    end setInput;
    procedure connectInput(myNeuron:Neuron_Access; connectingNeuron:Neuron_Access) is
    begin
@@ -68,7 +81,7 @@ package body NeuronModel is
       myNeuron.inNodeCount:= myNeuron.inNodeCount + 1;
    end connectInput;
    procedure adjustWeights(myNeuron:Neuron_Access) is
-   myDelta :Float := myNeuron.beta * activationFn(myNeuron.output,True);
+   myDelta :Float := myNeuron.beta * activationFn(myNeuron.activationFnValue,myNeuron.output,True);
    begin
       if myNeuron.inNodeCount /= 0 then
          for i in Integer range 0..myNeuron.inNodeCount-1 loop
@@ -92,7 +105,7 @@ package body NeuronModel is
       myNeuron.beta:=0.0;
    end adjustWeights;
    procedure backpropogate(myNeuron:Neuron_Access) is
-   myDelta: Float:= myNeuron.beta * activationFn(myNeuron.output,True);
+   myDelta: Float:= myNeuron.beta * activationFn(myNeuron.activationFnValue,myNeuron.output,True);
    begin
       if myNeuron.inNodeCount /=0 then
          for i in Integer range 0..myNeuron.inNodeCount-1 loop
@@ -116,7 +129,7 @@ package body NeuronModel is
       myNeuron.beta:=0.0;
 
       for i in Integer range 0..NeuronModel.numSynapses loop
-         myNeuron.synWeight(i):= Ada.Numerics.Float_Random.Random(Gen => RNG);
+         myNeuron.synWeight(i):= Ada.Numerics.Float_Random.Random(Gen => RNG)*2.0;
          myNeuron.prevDeltaWeight(i):= 0.0;
          myNeuron.inputs(i) := 0.0;
       end loop;
@@ -124,9 +137,9 @@ package body NeuronModel is
    procedure printWeights(myNeuron:Neuron_Access) is
    begin
       for i in Integer range 0..numSynapses loop
-         Put(myNeuron.synWeight(i));Put(",");
+         Put(myNeuron.synWeight(i),Exp => 0,Aft => 2);Put(",");
       end loop;
-      Put_Line(" ");
+      Put_Line(" = Weights ");
    end printWeights;
    procedure makeOutput(myNeuron:Neuron_Access) is
    sum : Float := 0.0;
@@ -135,11 +148,13 @@ package body NeuronModel is
       if myNeuron.inNodeCount /= 0 then
          for i in Integer range 0..myNeuron.inNodeCount-1 loop
             getOutput(myNeuron.inNodes(i),Result);
-            sum:= sum+ myNeuron.synWeight(i)*Result;
+            sum:= sum + myNeuron.synWeight(i)*Result;
          end loop;
-         myNeuron.output:= activationFn(input          => sum,
+         myNeuron.output:= activationFn(activationFnValue =>myNeuron.activationFnValue,
+                                        input          => sum,
                                         isDerivativeFn => False);
       end if;
+      Put(myNeuron.output,Exp => 0,Aft => 2);Put(" = Output ");
    end makeOutput;
 end NeuronModel;
 

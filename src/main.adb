@@ -9,28 +9,6 @@ procedure main is
    output : Float_Array(0..3) := (0.0,0.0,0.0,1.0);
    input1 : Float_Array(0..3) := (0.0,0.0,1.0,1.0);
    input2 : Float_Array(0..3) := (0.0,1.0,0.0,1.0);
-   procedure learn is
-      output : Float_Array(0..3) := (0.0,0.0,0.0,1.0);
-      input1 : Float_Array(0..3) := (0.0,0.0,1.0,1.0);
-      input2 : Float_Array(0..3) := (0.0,1.0,0.0,1.0);
-      Result : Boolean;
-   begin
-      for i in Integer range 0..3000 loop
-         for k in Integer range 0..3 loop
-            NeuronModel.setOutput(neuronAccessArray(1),input1(k));
-            NeuronModel.setOutput(neuronAccessArray(2),input2(k));
-            NeuronModel.makeOutput(myNeuron => neuronAccessArray(5));
-            NeuronModel.setDesiredOutput(myNeuron      => neuronAccessArray(5),
-                                         desiredOutput => output(k),
-                                         Result => Result);
-
-            NeuronModel.backpropogate(neuronAccessArray(5));
-            NeuronModel.adjustWeights(neuronAccessArray(5));
-            NeuronModel.adjustWeights(neuronAccessArray(4));
-            NeuronModel.adjustWeights(neuronAccessArray(3));
-         end loop;
-      end loop;
-   end learn;
    procedure test is
    begin
       for i in Natural range 0..3 loop
@@ -47,13 +25,46 @@ procedure main is
          Put(Result,Exp => 0,Aft => 1);New_Line;
       end;
    end loop;
+   New_Line;
    end test;
+   procedure learn is
+      output : Float_Array(0..3) := (0.0,0.0,0.0,1.0);
+      input1 : Float_Array(0..3) := (0.0,0.0,1.0,1.0);
+      input2 : Float_Array(0..3) := (0.0,1.0,0.0,1.0);
+      Result : Boolean;
+   begin
+      for i in Integer range 0..10 loop
+            Put(i);Put(" iter ");
+         for k in Integer range 0..3 loop
+            NeuronModel.setOutput(neuronAccessArray(1),input1(k));
+            NeuronModel.setOutput(neuronAccessArray(2),input2(k));
+
+            NeuronModel.makeOutput(myNeuron => neuronAccessArray(5));
+            NeuronModel.setDesiredOutput(myNeuron      => neuronAccessArray(5),
+                                         desiredOutput => output(k),
+                                         Result => Result);
+
+            NeuronModel.backpropogate(neuronAccessArray(5));
+            NeuronModel.adjustWeights(neuronAccessArray(5));
+            NeuronModel.adjustWeights(neuronAccessArray(4));
+            NeuronModel.adjustWeights(neuronAccessArray(3));
+         end loop;
+--         NeuronModel.printWeights(neuronAccessArray(4));
+      end loop;
+   end learn;
+
 begin
 
    for i in Integer range 0..numNeurons loop
       neuronAccessArray(i) := neuronArray(i)'Unchecked_Access;
       initialize(neuronAccessArray(i));
    end loop;
+   NeuronModel.setActivationFn(neuronAccessArray(6),Sigmoid);
+   NeuronModel.setActivationFn(neuronAccessArray(5),Sigmoid);
+   NeuronModel.setActivationFn(neuronAccessArray(4),Sigmoid);
+   NeuronModel.setActivationFn(neuronAccessArray(3),Sigmoid);
+   NeuronModel.setActivationFn(neuronAccessArray(2),Linear);
+   NeuronModel.setActivationFn(neuronAccessArray(1),Linear);
    --Make the connections between neurons
    NeuronModel.connectInput(myNeuron         => neuronAccessArray(5),
                             connectingNeuron => neuronAccessArray(3));
@@ -78,10 +89,9 @@ begin
    Put_Line("Setup done");
 
    test;
-   learn;
    test;
    learn;
-   test;
+
 
 end main;
 
